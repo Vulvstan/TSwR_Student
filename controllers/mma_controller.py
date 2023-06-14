@@ -1,5 +1,6 @@
 import numpy as np
 from .controller import Controller
+from models.manipulator_model import ManipulatorModel
 
 
 class MMAController(Controller):
@@ -8,18 +9,35 @@ class MMAController(Controller):
         # I:   m3=0.1,  r3=0.05
         # II:  m3=0.01, r3=0.01
         # III: m3=1.0,  r3=0.3
-        self.models = [None, None, None]
+        self.models = [ManipulatorModel(Tp, 0.1, 0.05), ManipulatorModel(Tp, 0.01, 0.01),
+                       ManipulatorModel(Tp, 1.0, 0.3)]
+
+        self.Tp = Tp
         self.i = 0
+
+        self.prev_x = np.zeros(4)
+        self.prev_u = np.zeros(2)
 
     def choose_model(self, x):
         # TODO: Implement procedure of choosing the best fitting model from self.models (by setting self.i)
-        pass
+
+        x_mi = [(model.x_dot(self.prev_x, self.prev_u) - self.prev_x.reshape(4, 1)) / self.Tp for model in self.models]
+
+        x_1, x_2, x_3 = [model.x_dot(self.prev_x, self.prev_u) * self.Tp + self.prev_x.reshape(4, 1) for model in
+                         self.models]
+        errors = [np.sum(abs(x.reshape(4, 1) - x_1)), np.sum(abs(x.reshape(4, 1) - x_2)),
+                  np.sum(abs(x.reshape(4, 1) - x_3))]
+        self.i = np.argmin(errors)
 
     def calculate_control(self, x, q_r, q_r_dot, q_r_ddot):
         self.choose_model(x)
         q = x[:2]
         q_dot = x[2:]
-        v = q_r_ddot # TODO: add feedback
+
+        K_d = [[25, 0], [0, 25]]
+        K_p = [[60, 0], [0, 60]]
+
+        v = q_r_ddot + K_d @ (q_r_dot - q_dot) + K_p @ (q_r - q)
         M = self.models[self.i].M(x)
         C = self.models[self.i].C(x)
         u = M @ v[:, np.newaxis] + C @ q_dot[:, np.newaxis]
