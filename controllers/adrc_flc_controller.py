@@ -43,7 +43,7 @@ class ADRFLController(Controller):
         M = self.model.M(x)
         C = self.model.C(x)
 
-        z_estimate = self.eso.get_estimate()
+        z_estimate = self.eso.get_state()
         x_estimate = z_estimate[0:2]
         x_estimate_dot = z_estimate[2:4]
         f = z_estimate[4:]

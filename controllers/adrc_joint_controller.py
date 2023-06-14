@@ -23,7 +23,7 @@ class ADRCJointController(Controller):
         ### TODO implement ADRC
         q = x[0]
         q_dot = x[1]
-        self.eso.update(q, self.last_u)
+        self.eso.update(q, self.prev_u)
         q_hat, q_hat_dot, f = self.eso.get_state()
 
         v = self.kp * (q_d - q) + self.kd * (q_d_dot - q_hat_dot) + q_d_ddot
