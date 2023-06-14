@@ -37,7 +37,6 @@ class ADRFLController(Controller):
 
     def calculate_control(self, x, q_d, q_d_dot, q_d_ddot):
         ### TODO implement centralized ADRFLC
-        return NotImplementedError
         q1, q2, q1_dot, q2_dot = x
         q = np.array([q1, q2])
         M = self.model.M(x)
@@ -48,8 +47,8 @@ class ADRFLController(Controller):
         x_estimate_dot = z_estimate[2:4]
         f = z_estimate[4:]
 
-        v = q_d_ddot + self.Kd @ (q_d_dot - x_est_dot) + self.Kp @ (q_d - q)
-        u = self.model.M(x) @ (v - f) + self.model.C(x) @ x_est_dot
+        v = q_d_ddot + self.Kd @ (q_d_dot - x_estimate_dot) + self.Kp @ (q_d - q)
+        u = self.model.M(x) @ (v - f) + self.model.C(x) @ x_estimate_dot
 
         self.update_params(x_estimate, x_estimate_dot)
         self.eso.update(q.reshape(len(q), 1), u.reshape(len(u), 1))

@@ -7,6 +7,7 @@ from trajectory_generators.constant_torque import ConstantTorque
 from trajectory_generators.sinusonidal import Sinusoidal
 from trajectory_generators.poly3 import Poly3
 from utils.simulation import simulate
+from numpy import pi
 
 Tp = 0.01
 start = 0
@@ -24,7 +25,7 @@ At the end implement Point2point trajectory generator to move your manipulator t
 """
 # traj_gen = ConstantTorque(np.array([0., 1.0])[:, np.newaxis])
 traj_gen = Sinusoidal(np.array([0., 1.]), np.array([2., 2.]), np.array([0., 0.]))
-#traj_gen = Poly3(np.array([0., 0.]), np.array([pi/4, pi/6]), end)
+# traj_gen = Poly3(np.array([0., 0.]), np.array([pi/4, pi/6]), end)
 
 
 Q, Q_d, u, T = simulate("PYBULLET", traj_gen, controller, Tp, end)
